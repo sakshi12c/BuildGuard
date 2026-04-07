@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🛡️ BuildGuard — Reproducibility Checker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-darkest: #07010f;
+      --bg-dark: #0f0520;
+      --bg-card: rgba(255,255,255,0.04);
+      --bg-card-hover: rgba(255,255,255,0.07);
+      --border: rgba(167,139,250,0.15);
+      --border-bright: rgba(167,139,250,0.35);
+      --purple-300: #c4b5fd;
+      --purple-400: #a78bfa;
+      --purple-500: #8b5cf6;
+      --purple-600: #7c3aed;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text-white: #ffffff;
+      --text-light: #e2d9f3;
+      --text-muted: #9d8ec4;
+      --text-faint: #6b5f8a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-darkest);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.28) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 80%, rgba(109,40,217,0.14) 0%, transparent 50%),
+        radial-gradient(ellipse 30% 30% at 10% 90%, rgba(124,58,237,0.1) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-white);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--purple-600); border-radius:3px; }
+
+    /* NAVBAR */
+    .navbar {
+      position: sticky; top:0; z-index:100;
+      background: rgba(7,1,15,0.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 66px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .navbar-brand {
+      display:flex; align-items:center; gap:10px;
+      text-decoration:none; color:var(--text-white);
+    }
+    .shield-icon { font-size:1.7rem; filter: drop-shadow(0 0 10px rgba(139,92,246,0.7)); }
+    .brand-name {
+      font-size:1.3rem; font-weight:800;
+      background: linear-gradient(135deg,#fff,var(--purple-300));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .navbar-links { display:flex; align-items:center; gap:0.4rem; }
+    .nav-link {
+      text-decoration:none; color:var(--text-muted); font-size:0.9rem; font-weight:500;
+      padding:0.45rem 1rem; border-radius:8px; transition:all 0.2s;
+    }
+    .nav-link:hover { color:var(--text-white); background:var(--bg-card); }
+    .nav-link.active { color:var(--purple-300); background:rgba(139,92,246,0.12); }
+
+    /* CONTAINER */
+    .container { max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+
+    /* HERO */
+    .hero { padding:4rem 0 2rem; text-align:center; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.28);
+      border-radius:100px; padding:0.4rem 1.1rem;
+      font-size:0.82rem; color:var(--purple-300); font-weight:500; margin-bottom:1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem,5vw,3.2rem); font-weight:800; line-height:1.15; margin-bottom:1rem;
+      background: linear-gradient(135deg,#fff 0%,#c4b5fd 60%,#8b5cf6 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .hero p { font-size:1.05rem; color:var(--text-muted); max-width:520px; margin:0 auto 2.5rem; line-height:1.7; }
+
+    /* BUTTONS */
+    .btn {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      padding:0.6rem 1.4rem; border:none; border-radius:8px;
+      font-family:'Inter',sans-serif; font-size:0.9rem; font-weight:600;
+      cursor:pointer; transition:all 0.2s; text-decoration:none;
+    }
+    .btn-primary {
+      background:linear-gradient(135deg,var(--purple-600),var(--purple-500));
+      color:white; box-shadow:0 4px 15px rgba(124,58,237,0.4);
+    }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(124,58,237,0.55); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-lg { padding:0.85rem 2rem; font-size:1rem; border-radius:12px; }
+    .btn-secondary {
+      background:var(--bg-card); color:var(--text-light);
+      border:1px solid var(--border);
+    }
+    .btn-secondary:hover { background:var(--bg-card-hover); border-color:var(--border-bright); color:white; }
+
+    /* UPLOAD ZONE */
+    .upload-section { max-width:620px; margin:0 auto 3rem; }
+    .upload-zone {
+      border:2px dashed var(--border-bright); border-radius:24px;
+      padding:3rem 2rem; text-align:center; cursor:pointer;
+      transition:all 0.3s; background:var(--bg-card);
+      backdrop-filter:blur(12px); position:relative; overflow:hidden;
+    }
+    .upload-zone::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at center,rgba(139,92,246,0.08) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color:var(--purple-500); background:rgba(139,92,246,0.09);
+      box-shadow:0 0 40px rgba(139,92,246,0.22); transform:translateY(-2px);
+    }
+    .upload-icon {
+      font-size:3rem; display:block; margin-bottom:1rem;
+      filter:drop-shadow(0 0 12px rgba(139,92,246,0.5));
+      animation:float 3s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .upload-zone h3 { font-size:1.15rem; font-weight:600; color:var(--text-white); margin-bottom:0.4rem; }
+    .upload-zone p { font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; }
+    .file-types {
+      display:inline-flex; gap:0.5rem; align-items:center;
+      background:rgba(0,0,0,0.25); padding:0.3rem 0.8rem;
+      border-radius:100px; font-size:0.78rem; color:var(--text-faint); margin-top:1rem;
+    }
+    #fileInput { display:none; }
+
+    /* SELECTED FILE */
+    .selected-file {
+      display:none; align-items:center; gap:0.75rem;
+      background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.22);
+      border-radius:12px; padding:0.9rem 1.2rem; margin-top:1rem;
+    }
+    .selected-file.show { display:flex; }
+    .file-icon { font-size:1.4rem; }
+    .file-info { flex:1; }
+    .file-name { font-weight:600; font-size:0.9rem; color:var(--text-white); }
+    .file-size { font-size:0.78rem; color:var(--text-muted); }
+    .remove-file {
+      background:none; border:none; color:var(--text-faint);
+      cursor:pointer; font-size:1.2rem; transition:color 0.2s;
+    }
+    .remove-file:hover { color:var(--red); }
+
+    /* PROGRESS */
+    .upload-progress { margin-top:1.5rem; display:none; }
+    .upload-progress.show { display:block; }
+    .progress-bar-wrap { background:rgba(0,0,0,0.3); border-radius:100px; height:6px; overflow:hidden; margin-bottom:0.75rem; }
+    .progress-bar-fill {
+      height:100%; background:linear-gradient(90deg,var(--purple-600),var(--purple-400));
+      border-radius:100px; transition:width 0.4s ease; width:0%;
+    }
+    .progress-text { font-size:0.85rem; color:var(--text-muted); }
+
+    /* STATS */
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:3rem; }
+    .stat-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:14px; padding:1.3rem 1.5rem; text-align:center; transition:all 0.3s;
+    }
+    .stat-card:hover { border-color:var(--border-bright); transform:translateY(-2px); }
+    .stat-icon { font-size:1.5rem; margin-bottom:0.5rem; }
+    .stat-value { font-size:1.8rem; font-weight:800; color:var(--text-white); line-height:1; margin-bottom:0.3rem; }
+    .stat-label { font-size:0.78rem; color:var(--text-muted); font-weight:500; }
+
+    /* SECTION TITLE */
+    .section-title {
+      font-size:1.1rem; font-weight:700; color:var(--text-light);
+      margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;
+    }
+
+    /* RECENT LIST */
+    .recent-list { display:flex; flex-direction:column; gap:0.75rem; margin-bottom:3rem; }
+    .recent-item {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:14px; padding:1rem 1.3rem;
+      display:flex; align-items:center; gap:1rem;
+      text-decoration:none; color:inherit; transition:all 0.2s;
+    }
+    .recent-item:hover { border-color:var(--border-bright); background:var(--bg-card-hover); transform:translateX(3px); }
+    .item-icon { font-size:1.3rem; flex-shrink:0; }
+    .item-info { flex:1; min-width:0; }
+    .item-name { font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .item-date { font-size:0.78rem; color:var(--text-muted); margin-top:0.1rem; }
+    .item-score { font-size:1rem; font-weight:700; flex-shrink:0; }
+    .item-score.high { color:var(--green); }
+    .item-score.low  { color:var(--red); }
+
+    /* FEATURES */
+    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-bottom:3rem; }
+    .feature-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:14px; padding:1.5rem; transition:all 0.3s;
+    }
+    .feature-card:hover { border-color:var(--border-bright); box-shadow:0 0 30px rgba(139,92,246,0.15); }
+    .feature-card .feature-icon { font-size:1.8rem; margin-bottom:0.75rem; }
+    .feature-card h4 { font-size:0.95rem; font-weight:700; margin-bottom:0.4rem; }
+    .feature-card p { font-size:0.83rem; color:var(--text-muted); line-height:1.6; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align:center; padding:3rem 2rem; color:var(--text-muted); }
+    .empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.5; }
+    .empty-state h3 { font-size:1.1rem; margin-bottom:0.5rem; color:var(--text-light); }
+
+    /* TOAST */
+    .toast-container { position:fixed; bottom:2rem; right:2rem; z-index:9999; display:flex; flex-direction:column; gap:0.75rem; }
+    .toast {
+      background:#1a0a35; border:1px solid var(--border-bright);
+      border-radius:14px; padding:1rem 1.4rem; min-width:280px; max-width:380px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.4);
+      display:flex; align-items:center; gap:0.75rem;
+      animation:slideIn 0.3s ease; font-size:0.9rem;
+    }
+    .toast.success { border-color:rgba(16,185,129,0.4); }
+    .toast.error   { border-color:rgba(239,68,68,0.4); }
+    @keyframes slideIn { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes fadeOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(110%)} }
+
+    /* SPINNER */
+    .spinner {
+      width:18px; height:18px; border:2px solid rgba(139,92,246,0.3);
+      border-top-color:var(--purple-400); border-radius:50%;
+      animation:spin 0.8s linear infinite; display:inline-block;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    @media(max-width:768px){
+      .stats-row{grid-template-columns:repeat(2,1fr);}
+      .features-grid{grid-template-columns:1fr;}
+      .navbar{padding:0 1rem;}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="shield-icon">🛡️</span>
+    <span class="brand-name">BuildGuard</span>
+  </a>
+  <div class="navbar-links">
+    <a href="/" class="nav-link active">Home</a>
+    <a href="/history" class="nav-link">History</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  
+  <!-- GCC Check Banner -->
+  <div id="gccBanner" style="display:none;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:2rem;display:none;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <span style="font-size:1.5rem;">⚠️</span>
+    <div style="flex:1;">
+      <div style="font-weight:700;color:#f59e0b;margin-bottom:0.3rem;">GCC Compiler Not Found</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);">BuildGuard needs GCC to compile C files. Install MinGW-w64 for Windows, then restart the server.</div>
+    </div>
+    <a href="https://www.mingw-w64.org/downloads/" target="_blank" class="btn" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.35);white-space:nowrap;">Download GCC →</a>
+  </div>
+<section class="hero">
+    <div class="hero-badge">🔬 Research Tool for C Programming</div>
+    <h1>Can You Trust<br/>Your C Program?</h1>
+    <p>BuildGuard compiles your C code <strong>twice</strong> and checks if both builds are perfectly identical. Any hidden difference could be a security risk.</p>
+  </section>
+
+  <section class="upload-section">
+    <div class="upload-zone" id="uploadZone">
+      <span class="upload-icon">📁</span>
+      <h3>Drop your C file here</h3>
+      <p>Drag & drop or click to browse</p>
+      <button class="btn btn-primary btn-lg" id="browseBtn" type="button">Browse File</button>
+      <input type="file" id="fileInput" accept=".c" />
+      <div class="file-types"><span>Only .c files</span> · <span>Max 5MB</span></div>
+
+      <div class="selected-file" id="selectedFile">
+        <span class="file-icon">📄</span>
+        <div class="file-info">
+          <div class="file-name" id="fileName">filename.c</div>
+          <div class="file-size" id="fileSize">0 KB</div>
+        </div>
+        <button class="remove-file" id="removeFile" type="button">✕</button>
+      </div>
+
+      <div class="upload-progress" id="uploadProgress">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">Preparing...</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:1.25rem;">
+      <button class="btn btn-primary btn-lg" id="checkBtn" type="button" disabled>🛡️ Check Reproducibility</button>
+    </div>
+  </section>
+
+  <section class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">Total Checks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" id="statRepro" style="color:var(--green)">0</div>
+      <div class="stat-label">Reproducible</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">❌</div>
+      <div class="stat-value" id="statFail" style="color:var(--red)">0</div>
+      <div class="stat-label">Not Reproducible</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value" id="statAvg" style="color:var(--purple-400)">0%</div>
+      <div class="stat-label">Avg Score</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      🕐 Recent Checks
+      <a href="/history" style="margin-left:auto;font-size:0.82rem;color:var(--purple-400);text-decoration:none;font-weight:500;">View all →</a>
+    </div>
+    <div class="recent-list" id="recentList">
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No checks yet</h3>
+        <p>Upload a .c file above to get started!</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">⚙️ How It Works</div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">📤</div><h4>1. Upload</h4><p>Upload your C source code file. It is temporarily stored for analysis only.</p></div>
+      <div class="feature-card"><div class="feature-icon">⚙️</div><h4>2. Double Compile</h4><p>BuildGuard compiles your code twice using GCC — once with a locked timestamp, once without.</p></div>
+      <div class="feature-card"><div class="feature-icon">🔍</div><h4>3. Compare</h4><p>We compare both outputs byte-by-byte using SHA-256 hashing and give you a trust score.</p></div>
+      <div class="feature-card"><div class="feature-icon">📊</div><h4>4. Results</h4><p>See your reproducibility score, hash comparison, and exactly what caused any differences.</p></div>
+      <div class="feature-card"><div class="feature-icon">💡</div><h4>5. Fix Suggestions</h4><p>Get actionable advice on how to make your build fully reproducible and secure.</p></div>
+      <div class="feature-card"><div class="feature-icon">📜</div><h4>6. History</h4><p>All your past checks are saved so you can track improvements over time.</p></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ---- Utilities ----
+  function formatSize(b){if(!b)return'N/A';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+  function formatDate(s){if(!s)return'N/A';const d=new Date(s);return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function escHtml(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s||'')));return d.innerHTML;}
+  function showToast(msg,type='info'){
+    const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+    const c=document.getElementById('toastContainer');
+    const t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.animation='fadeOut 0.3s ease forwards';setTimeout(()=>t.remove(),300);},3500);
+  }
+
+  // ---- Upload Logic ----
+  let selectedFile = null;
+  const zone = document.getElementById('uploadZone');
+  const input = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const selectedFileEl = document.getElementById('selectedFile');
+  const removeBtn = document.getElementById('removeFile');
+  const checkBtn = document.getElementById('checkBtn');
+  const fileNameEl = document.getElementById('fileName');
+  const fileSizeEl = document.getElementById('fileSize');
+  const progressWrap = document.getElementById('uploadProgress');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+
+  browseBtn.addEventListener('click', () => input.click());
+  input.addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('dragover'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  removeBtn.addEventListener('click', e => { e.stopPropagation(); clearFile(); });
+  checkBtn.addEventListener('click', submitFile);
+
+  function handleFile(file){
+    if(!file.name.endsWith('.c')){ showToast('Only .c files are allowed!','error'); return; }
+    if(file.size > 5*1024*1024){ showToast('File too large! Max 5MB.','error'); return; }
+    selectedFile = file;
+    fileNameEl.textContent = file.name;
+    fileSizeEl.textContent = formatSize(file.size);
+    selectedFileEl.classList.add('show');
+    checkBtn.disabled = false;
+    showToast(`"${file.name}" selected!`,'success');
+  }
+
+  function clearFile(){
+    selectedFile = null;
+    input.value = '';
+    selectedFileEl.classList.remove('show');
+    checkBtn.disabled = true;
+  }
+
+  async function submitFile(){
+    if(!selectedFile){ showToast('Please select a .c file first!','warning'); return; }
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = '<span class="spinner"></span> Checking...';
+    progressWrap.classList.add('show');
+
+    const stages=[
+      {p:25,t:'📤 Uploading file...'},
+      {p:50,t:'⚙️ Compiling build 1...'},
+      {p:75,t:'⚙️ Compiling build 2...'},
+      {p:90,t:'🔍 Comparing outputs...'}
+    ];
+    let si=0;
+    const iv=setInterval(()=>{
+      if(si<stages.length){ const s=stages[si++]; progressFill.style.width=s.p+'%'; progressText.textContent=s.t; }
+    },900);
+
+    const fd = new FormData();
+    fd.append('cfile', selectedFile);
+
+    try {
+      const res = await fetch('/api/upload', { method:'POST', body:fd });
+      clearInterval(iv);
+      progressFill.style.width = '100%';
+      progressText.textContent = '✅ Done!';
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || 'Upload failed');
+      setTimeout(() => { window.location.href = `/results?id=${data.id}`; }, 600);
+    } catch(err){
+      clearInterval(iv);
+      progressWrap.classList.remove('show');
+      checkBtn.disabled = false;
+      checkBtn.innerHTML = '🛡️ Check Reproducibility';
+      showToast(err.message || 'Something went wrong!','error');
+    }
+  }
+
+  // ---- Load Stats ----
+  async function loadStats(){
+    try{
+      const res = await fetch('/api/history/stats');
+      const d = await res.json();
+      document.getElementById('statTotal').textContent = d.total;
+      document.getElementById('statRepro').textContent = d.reproducible;
+      document.getElementById('statFail').textContent  = d.nonReproducible;
+      document.getElementById('statAvg').textContent   = d.avgScore+'%';
+    } catch(e){}
+  }
+
+  // ---- Load Recent ----
+  async function loadRecent(){
+    const list = document.getElementById('recentList');
+    try{
+      const res = await fetch('/api/history');
+      const data = await res.json();
+      if(!data.length){ return; }
+      list.innerHTML = data.slice(0,5).map(item=>`
+        <a href="/results?id=${item.id}" class="recent-item">
+          <span class="item-icon">${item.is_reproducible?'✅':'❌'}</span>
+          <div class="item-info">
+            <div class="item-name">${escHtml(item.filename)}</div>
+            <div class="item-date">${formatDate(item.check_date)}</div>
+          </div>
+          <span class="item-score ${item.score>=80?'high':'low'}">${item.score}%</span>
+        </a>
+      `).join('');
+    } catch(e){ list.innerHTML='<div class="empty-state"><p>Could not load recent checks.</p></div>'; }
+  }
+
+  loadStats();
+  loadRecent();
+
+  // GCC Check
+  async function checkGCC(){
+    try{
+      const res = await fetch('/api/gcc-check');
+      const d = await res.json();
+      if(!d.found){
+        const b = document.getElementById('gccBanner');
+        b.style.display='flex';
+      }
+    } catch(e){}
+  }
+  checkGCC();
+
+</script>
+</body>
+</html>

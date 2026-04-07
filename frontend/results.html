@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>🛡️ BuildGuard — Result</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg-darkest:#07010f; --bg-dark:#0f0520; --bg-card:rgba(255,255,255,0.04);
+      --bg-card-hover:rgba(255,255,255,0.07); --border:rgba(167,139,250,0.15);
+      --border-bright:rgba(167,139,250,0.35); --purple-300:#c4b5fd; --purple-400:#a78bfa;
+      --purple-500:#8b5cf6; --purple-600:#7c3aed; --green:#10b981; --red:#ef4444;
+      --yellow:#f59e0b; --text-white:#ffffff; --text-light:#e2d9f3;
+      --text-muted:#9d8ec4; --text-faint:#6b5f8a;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--bg-darkest);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%,rgba(139,92,246,0.28) 0%,transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 80%,rgba(109,40,217,0.14) 0%,transparent 50%);
+      background-attachment:fixed; color:var(--text-white); min-height:100vh; line-height:1.6;
+    }
+    ::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-track{background:var(--bg-dark);} ::-webkit-scrollbar-thumb{background:var(--purple-600);border-radius:3px;}
+    .navbar{position:sticky;top:0;z-index:100;background:rgba(7,1,15,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:66px;display:flex;align-items:center;justify-content:space-between;}
+    .navbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-white);}
+    .shield-icon{font-size:1.7rem;filter:drop-shadow(0 0 10px rgba(139,92,246,0.7));}
+    .brand-name{font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--purple-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .navbar-links{display:flex;align-items:center;gap:0.4rem;}
+    .nav-link{text-decoration:none;color:var(--text-muted);font-size:0.9rem;font-weight:500;padding:0.45rem 1rem;border-radius:8px;transition:all 0.2s;}
+    .nav-link:hover{color:var(--text-white);background:var(--bg-card);}
+    .nav-link.active{color:var(--purple-300);background:rgba(139,92,246,0.12);}
+    .container{max-width:900px;margin:0 auto;padding:0 1.5rem;}
+    .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.4rem;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,var(--purple-600),var(--purple-500));color:white;box-shadow:0 4px 15px rgba(124,58,237,0.4);}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.55);}
+    .btn-secondary{background:var(--bg-card);color:var(--text-light);border:1px solid var(--border);}
+    .btn-secondary:hover{background:var(--bg-card-hover);border-color:var(--border-bright);color:white;}
+    .badge{display:inline-flex;align-items:center;gap:0.35rem;padding:0.3rem 0.8rem;border-radius:100px;font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
+    .badge-success{background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3);}
+    .badge-danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+    .badge-warning{background:rgba(245,158,11,0.15);color:var(--yellow);border:1px solid rgba(245,158,11,0.3);}
+    .page{padding:2rem 0 4rem;}
+    .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+    .top-bar-left{display:flex;align-items:center;gap:1rem;}
+    .top-bar h1{font-size:1.2rem;font-weight:700;color:var(--text-light);}
+
+    /* SCORE SECTION */
+    .score-section{text-align:center;padding:2.5rem 2rem;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+    .score-section::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(ellipse,rgba(139,92,246,0.12) 0%,transparent 70%);pointer-events:none;}
+    .score-circle-wrap{position:relative;width:160px;height:160px;margin:0 auto 1.5rem;}
+    .score-svg{width:160px;height:160px;transform:rotate(-90deg);}
+    .score-track{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:10;}
+    .score-progress{fill:none;stroke-width:10;stroke-linecap:round;stroke-dasharray:408;stroke-dashoffset:408;transition:stroke-dashoffset 1.5s cubic-bezier(0.34,1.56,0.64,1);}
+    .score-progress.good{stroke:var(--green);}
+    .score-progress.bad{stroke:var(--red);}
+    .score-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+    .score-number{font-size:2.2rem;font-weight:800;line-height:1;color:var(--text-white);}
+    .score-label{font-size:0.72rem;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;}
+    .score-section h2{font-size:1.4rem;font-weight:700;margin:0.75rem 0 0.4rem;}
+    .score-desc{font-size:0.9rem;color:var(--text-muted);}
+
+    /* INFO GRID */
+    .info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .info-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;}
+    .info-label{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:0.5rem;}
+    .info-value{font-size:0.95rem;font-weight:600;color:var(--text-white);word-break:break-all;}
+
+    /* HASH */
+    .hash-section{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;}
+    .section-h{font-size:0.9rem;font-weight:700;color:var(--text-light);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+    .hash-row{display:flex;align-items:flex-start;gap:1rem;padding:0.75rem;border-radius:8px;background:rgba(0,0,0,0.2);margin-bottom:0.75rem;}
+    .hash-row:last-of-type{margin-bottom:0;}
+    .hash-label{font-size:0.75rem;font-weight:700;color:var(--purple-400);white-space:nowrap;padding-top:0.1rem;min-width:70px;}
+    .hash-value{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--text-muted);word-break:break-all;line-height:1.5;}
+    .hash-match{display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.6rem;border-radius:8px;font-size:0.82rem;font-weight:600;margin-top:0.75rem;}
+    .hash-match.matched{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+    .hash-match.mismatched{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+
+    /* CAUSES */
+    .causes-section{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;display:none;}
+    .cause-item{display:flex;gap:1rem;padding:1rem;border-radius:8px;background:rgba(0,0,0,0.2);margin-bottom:0.75rem;}
+    .cause-item:last-child{margin-bottom:0;}
+    .cause-icon{font-size:1.4rem;flex-shrink:0;}
+    .cause-body{flex:1;}
+    .cause-title{font-weight:700;font-size:0.88rem;color:var(--text-white);margin-bottom:0.2rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+    .cause-desc{font-size:0.82rem;color:var(--text-muted);margin-bottom:0.4rem;line-height:1.5;}
+    .cause-fix{font-size:0.78rem;color:var(--purple-400);}
+    .action-btns{display:flex;gap:0.75rem;flex-wrap:wrap;}
+
+    /* TOAST */
+    .toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:0.75rem;}
+    .toast{background:#1a0a35;border:1px solid var(--border-bright);border-radius:14px;padding:1rem 1.4rem;min-width:280px;display:flex;align-items:center;gap:0.75rem;animation:slideIn 0.3s ease;font-size:0.9rem;}
+    @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+    @keyframes fadeOut{from{opacity:1}to{opacity:0;transform:translateX(110%)}}
+    .spinner{width:18px;height:18px;border:2px solid rgba(139,92,246,0.3);border-top-color:var(--purple-400);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:768px){.info-grid{grid-template-columns:1fr;}.hash-row{flex-direction:column;gap:0.4rem;}}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="shield-icon">🛡️</span>
+    <span class="brand-name">BuildGuard</span>
+  </a>
+  <div class="navbar-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/history" class="nav-link">History</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page" id="resultContainer">
+
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <a href="/" class="btn btn-secondary">← Back</a>
+        <h1>Build Result</h1>
+      </div>
+      <span class="badge" id="statusBadge">Loading...</span>
+    </div>
+
+    <div class="score-section">
+      <div class="score-circle-wrap">
+        <svg class="score-svg" viewBox="0 0 140 140">
+          <circle class="score-track" cx="70" cy="70" r="65"/>
+          <circle class="score-progress" id="scoreProgress" cx="70" cy="70" r="65"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-number" id="scoreNumber">—</div>
+          <div class="score-label">Score</div>
+        </div>
+      </div>
+      <h2 id="scoreTitle">Analyzing...</h2>
+      <p class="score-desc" id="scoreDesc">Loading your result, please wait.</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card"><div class="info-label">📄 File Name</div><div class="info-value" id="infoFilename">—</div></div>
+      <div class="info-card"><div class="info-label">📅 Check Date</div><div class="info-value" id="infoDate">—</div></div>
+      <div class="info-card"><div class="info-label">📦 File Size</div><div class="info-value" id="infoSize">—</div></div>
+      <div class="info-card"><div class="info-label">⏱️ Build Time</div><div class="info-value" id="infoBuildTime">—</div></div>
+    </div>
+
+    <div class="hash-section">
+      <div class="section-h">🔐 SHA-256 Hash Comparison</div>
+      <div class="hash-row"><span class="hash-label">Build #1</span><span class="hash-value" id="hash1">Loading...</span></div>
+      <div class="hash-row"><span class="hash-label">Build #2</span><span class="hash-value" id="hash2">Loading...</span></div>
+      <div class="hash-match" id="hashMatch">Comparing...</div>
+    </div>
+
+    <div class="causes-section" id="causesSection">
+      <div class="section-h">⚠️ Possible Causes of Non-Reproducibility</div>
+      <div id="causesList"></div>
+    </div>
+
+    <div class="action-btns">
+      <a href="/" class="btn btn-primary">🔄 Check Another File</a>
+      <a href="/history" class="btn btn-secondary">📜 View History</a>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  window.BG_API_BASE = '';
+  window.BG_ORIGIN = window.location.origin;
+</script>
+<script src="/js/config.js"></script>
+<script>
+  function formatSize(b){if(!b)return'N/A';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+  function formatDate(s){if(!s)return'N/A';const d=new Date(s);return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function escHtml(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s||'')));return d.innerHTML;}
+  function setEl(id,v){const e=document.getElementById(id);if(e)e.textContent=v||'N/A';}
+
+  async function loadResult(){
+    const id = new URLSearchParams(window.location.search).get('id');
+    if(!id){ showError('No result ID in URL.'); return; }
+    try{
+      const res = await fetch((window.BG_API_BASE || '') + '/api/compare/' + id);
+      if(!res.ok) throw new Error('Result not found');
+      const data = await res.json();
+      render(data);
+    } catch(err){ showError(err.message); }
+  }
+
+  function render(data){
+    const isR = Boolean(data.is_reproducible);
+    const score = data.score||0;
+    const badge = document.getElementById('statusBadge');
+    badge.className = `badge ${isR?'badge-success':'badge-danger'}`;
+    badge.innerHTML = isR?'✅ Reproducible':'❌ Not Reproducible';
+    setEl('scoreNumber', score+'%');
+    const prog = document.getElementById('scoreProgress');
+    prog.classList.add(isR?'good':'bad');
+    setTimeout(()=>{ prog.style.strokeDashoffset = 408 - (score/100)*408; },200);
+    const title = document.getElementById('scoreTitle');
+    title.textContent = isR?'🎉 Your Build is Reproducible!':'⚠️ Build is Not Reproducible';
+    title.style.color = isR?'var(--green)':'var(--red)';
+    setEl('scoreDesc', isR
+      ? 'Both builds produced the exact same output. Your C code passes the reproducibility check!'
+      : 'The two builds produced different outputs. Hidden differences exist in your binary.');
+    setEl('infoFilename', data.filename);
+    setEl('infoDate', formatDate(data.check_date));
+    setEl('infoSize', formatSize(data.file_size));
+    setEl('infoBuildTime', data.build_time_ms ? data.build_time_ms+'ms' : 'N/A');
+    setEl('hash1', data.hash1||'N/A');
+    setEl('hash2', data.hash2||'N/A');
+    const hm = document.getElementById('hashMatch');
+    hm.className = `hash-match ${isR?'matched':'mismatched'}`;
+    hm.innerHTML = isR?'✅ Hashes are identical — builds match perfectly':'❌ Hashes are different — builds do not match';
+    if(!isR && data.details && data.details.differences && data.details.differences.length){
+      const sec = document.getElementById('causesSection');
+      sec.style.display='block';
+      document.getElementById('causesList').innerHTML = data.details.differences.map(c=>`
+        <div class="cause-item">
+          <span class="cause-icon">${c.icon||'🔍'}</span>
+          <div class="cause-body">
+            <div class="cause-title">${escHtml(c.cause)} <span class="badge ${c.severity==='High'?'badge-danger':c.severity==='Medium'?'badge-warning':'badge-success'}">${c.severity}</span></div>
+            <div class="cause-desc">${escHtml(c.description)}</div>
+            <div class="cause-fix">💡 Fix: ${escHtml(c.fix)}</div>
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  function showError(msg){
+    document.getElementById('resultContainer').innerHTML=`<div style="text-align:center;padding:5rem 2rem;color:var(--text-muted)"><div style="font-size:3rem;margin-bottom:1rem">❌</div><h3 style="color:var(--text-light);margin-bottom:0.5rem">Error</h3><p>${escHtml(msg)}</p><a href="${(window.BG_ORIGIN || window.location.origin)}/" class="btn btn-primary" style="margin-top:1.5rem">← Back to Home</a></div>`;
+  }
+
+  loadResult();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+buildguard/
+├── frontend/
+│   ├── index.html  -done        ← Main upload page
+│   ├── results.html   -done     ← Result detail page
+│   ├── history.html   -done     ← All past checks
+│   ├── css/
+│   │   ├── style.css  -done      ← Global purple theme
+│   │   ├── dashboard.css -done  ← Home page styles
+│   │   └── results.css  -done    ← Results & history styles
+│   └── js/
+│       ├── main.js  -done       ← Shared utilities
+│       ├── upload.js  -done      ← Upload page logic
+│       └── results.js  -done     ← Results & history logic
+├── backend/
+│   ├── server.js done          ← Express server (entry point)
+│   ├── routes/
+│   │   ├── upload.js  -done       ← POST /api/upload
+│   │   ├── compare.js -done ← GET  /api/compare/:id
+│   │   └── history.js -done      ← GET  /api/history
+│   ├── controllers/
+│   │   ├── buildController.js  -done
+│   │   └── compareController.js  -done
+│   └── utils/
+│       ├── compiler.js -done    ← GCC double-compile logic
+│       └── differ.js   -done    ← Difference analysis
+├── database/
+│   └── db.js    -done         ← SQLite setup
+├── uploads/                ← Temp C file storage
+├── builds/                 ← Compiled binary storage
+├── .env                    ← Environment config
+└── package.json

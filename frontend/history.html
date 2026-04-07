@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>🛡️ BuildGuard — History</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg-darkest:#07010f; --bg-dark:#0f0520; --bg-card:rgba(255,255,255,0.04);
+      --bg-card-hover:rgba(255,255,255,0.07); --border:rgba(167,139,250,0.15);
+      --border-bright:rgba(167,139,250,0.35); --purple-300:#c4b5fd; --purple-400:#a78bfa;
+      --purple-500:#8b5cf6; --purple-600:#7c3aed; --green:#10b981; --red:#ef4444;
+      --yellow:#f59e0b; --text-white:#ffffff; --text-light:#e2d9f3;
+      --text-muted:#9d8ec4; --text-faint:#6b5f8a;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--bg-darkest);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%,rgba(139,92,246,0.28) 0%,transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 80%,rgba(109,40,217,0.14) 0%,transparent 50%);
+      background-attachment:fixed; color:var(--text-white); min-height:100vh; line-height:1.6;
+    }
+    ::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-track{background:var(--bg-dark);} ::-webkit-scrollbar-thumb{background:var(--purple-600);border-radius:3px;}
+    .navbar{position:sticky;top:0;z-index:100;background:rgba(7,1,15,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 2rem;height:66px;display:flex;align-items:center;justify-content:space-between;}
+    .navbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-white);}
+    .shield-icon{font-size:1.7rem;filter:drop-shadow(0 0 10px rgba(139,92,246,0.7));}
+    .brand-name{font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,#fff,var(--purple-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .navbar-links{display:flex;align-items:center;gap:0.4rem;}
+    .nav-link{text-decoration:none;color:var(--text-muted);font-size:0.9rem;font-weight:500;padding:0.45rem 1rem;border-radius:8px;transition:all 0.2s;}
+    .nav-link:hover{color:var(--text-white);background:var(--bg-card);}
+    .nav-link.active{color:var(--purple-300);background:rgba(139,92,246,0.12);}
+    .container{max-width:1080px;margin:0 auto;padding:0 1.5rem;}
+    .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.4rem;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+    .btn-primary{background:linear-gradient(135deg,var(--purple-600),var(--purple-500));color:white;box-shadow:0 4px 15px rgba(124,58,237,0.4);}
+    .btn-primary:hover{transform:translateY(-1px);}
+    .btn-secondary{background:var(--bg-card);color:var(--text-light);border:1px solid var(--border);}
+    .btn-secondary:hover{background:var(--bg-card-hover);border-color:var(--border-bright);color:white;}
+    .btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+    .btn-danger:hover{background:rgba(239,68,68,0.25);}
+    .page{padding:2rem 0 4rem;}
+    .page-hdr{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;}
+    .page-hdr h1{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .page-hdr p{font-size:0.88rem;color:var(--text-muted);margin-top:0.2rem;}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+    .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;text-align:center;transition:all 0.3s;}
+    .stat-card:hover{border-color:var(--border-bright);transform:translateY(-2px);}
+    .stat-icon{font-size:1.5rem;margin-bottom:0.5rem;}
+    .stat-value{font-size:1.8rem;font-weight:800;color:var(--text-white);line-height:1;margin-bottom:0.3rem;}
+    .stat-label{font-size:0.78rem;color:var(--text-muted);font-weight:500;}
+    .controls-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+    .search-box{display:flex;align-items:center;gap:0.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.5rem 1rem;flex:1;max-width:300px;}
+    .search-box input{background:none;border:none;outline:none;color:var(--text-white);font-family:'Inter',sans-serif;font-size:0.88rem;width:100%;}
+    .search-box input::placeholder{color:var(--text-faint);}
+    .filter-btn{background:var(--bg-card);color:var(--text-light);border:1px solid var(--border);padding:0.45rem 1rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
+    .filter-btn:hover,.filter-btn.active{background:rgba(139,92,246,0.12);border-color:var(--border-bright);color:var(--purple-300);}
+    .table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+    table{width:100%;border-collapse:collapse;}
+    thead{background:rgba(0,0,0,0.25);border-bottom:1px solid var(--border);}
+    th{padding:0.9rem 1.2rem;text-align:left;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);}
+    td{padding:0.9rem 1.2rem;font-size:0.88rem;border-bottom:1px solid var(--border);color:var(--text-light);vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr{transition:background 0.2s;cursor:pointer;}
+    tbody tr:hover{background:rgba(139,92,246,0.06);}
+    .score-pill{display:inline-block;padding:0.2rem 0.7rem;border-radius:100px;font-size:0.8rem;font-weight:700;}
+    .score-pill.high{background:rgba(16,185,129,0.15);color:var(--green);}
+    .score-pill.low{background:rgba(239,68,68,0.15);color:var(--red);}
+    .empty-state{text-align:center;padding:4rem 2rem;color:var(--text-muted);}
+    .empty-icon{font-size:3rem;margin-bottom:1rem;opacity:0.5;}
+    .empty-state h3{font-size:1.1rem;margin-bottom:0.5rem;color:var(--text-light);}
+    .toast-container{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:0.75rem;}
+    .toast{background:#1a0a35;border:1px solid var(--border-bright);border-radius:14px;padding:1rem 1.4rem;min-width:280px;display:flex;align-items:center;gap:0.75rem;animation:slideIn 0.3s ease;font-size:0.9rem;}
+    .toast.success{border-color:rgba(16,185,129,0.4);} .toast.error{border-color:rgba(239,68,68,0.4);}
+    @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+    @keyframes fadeOut{from{opacity:1}to{opacity:0;transform:translateX(110%)}}
+    .spinner{width:24px;height:24px;border:2px solid rgba(139,92,246,0.3);border-top-color:var(--purple-400);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 1rem;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr);}th:nth-child(4),td:nth-child(4){display:none;}}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="shield-icon">🛡️</span>
+    <span class="brand-name">BuildGuard</span>
+  </a>
+  <div class="navbar-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/history" class="nav-link active">History</a>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page">
+
+    <div class="page-hdr">
+      <a href="/" class="btn btn-secondary">← Back</a>
+      <div>
+        <h1>📜 Check History</h1>
+        <p>All your past reproducibility checks in one place</p>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value" id="hStatTotal">0</div><div class="stat-label">Total Checks</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="hStatRepro" style="color:var(--green)">0</div><div class="stat-label">Reproducible</div></div>
+      <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-value" id="hStatFail" style="color:var(--red)">0</div><div class="stat-label">Not Reproducible</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="hStatAvg" style="color:var(--purple-400)">0%</div><div class="stat-label">Avg Score</div></div>
+    </div>
+
+    <div class="controls-bar">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by filename..."/>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="pass" style="color:var(--green)">✅ Passed</button>
+        <button class="filter-btn" data-filter="fail" style="color:var(--red)">❌ Failed</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>File</th><th>Date</th><th>Score</th><th>Size</th><th>Build Time</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="6" style="text-align:center;padding:3rem;">
+            <div class="spinner"></div>Loading history...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="historyEmpty" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No history found</h3>
+        <p>Upload a .c file on the home page to start checking!</p>
+        <a href="/" class="btn btn-primary" style="margin-top:1.5rem;">Go to Home</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  window.BG_API_BASE = '';
+  window.BG_ORIGIN = window.location.origin;
+</script>
+<script src="/js/config.js"></script>
+<script>
+  function formatSize(b){if(!b)return'N/A';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+  function formatDate(s){if(!s)return'N/A';const d=new Date(s);return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function escHtml(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s||'')));return d.innerHTML;}
+  function showToast(msg,type='info'){
+    const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+    const c=document.getElementById('toastContainer');
+    const t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.animation='fadeOut 0.3s ease forwards';setTimeout(()=>t.remove(),300);},3500);
+  }
+
+  let allHistory = [];
+
+  async function loadStats(){
+    try{
+      const res = await fetch((window.BG_API_BASE || '') + '/api/history/stats');
+      const d = await res.json();
+      document.getElementById('hStatTotal').textContent = d.total;
+      document.getElementById('hStatRepro').textContent = d.reproducible;
+      document.getElementById('hStatFail').textContent  = d.nonReproducible;
+      document.getElementById('hStatAvg').textContent   = d.avgScore+'%';
+    } catch(e){}
+  }
+
+  async function loadTable(){
+    try{
+      const res = await fetch((window.BG_API_BASE || '') + '/api/history');
+      allHistory = await res.json();
+      renderTable(allHistory);
+      document.getElementById('searchInput').addEventListener('input', e=>{
+        const q = e.target.value.toLowerCase();
+        renderTable(allHistory.filter(r=>r.filename.toLowerCase().includes(q)));
+      });
+      document.querySelectorAll('.filter-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const f = btn.dataset.filter;
+          let filtered = allHistory;
+          if(f==='pass') filtered = allHistory.filter(r=>r.is_reproducible);
+          if(f==='fail') filtered = allHistory.filter(r=>!r.is_reproducible);
+          renderTable(filtered);
+        });
+      });
+    } catch(e){
+      document.getElementById('historyBody').innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Could not load history.</td></tr>`;
+    }
+  }
+
+  function renderTable(data){
+    const tbody = document.getElementById('historyBody');
+    const empty = document.getElementById('historyEmpty');
+    if(!data.length){
+      tbody.innerHTML='';
+      empty.style.display='block';
+      return;
+    }
+    empty.style.display='none';
+    tbody.innerHTML = data.map(item=>`
+      <tr onclick="window.location=(window.BG_ORIGIN||window.location.origin)+'/results?id=${item.id}'">
+        <td><span style="display:flex;align-items:center;gap:0.5rem;">${item.is_reproducible?'✅':'❌'} <span style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(item.filename)}</span></span></td>
+        <td>${formatDate(item.check_date)}</td>
+        <td><span class="score-pill ${item.score>=80?'high':'low'}">${item.score}%</span></td>
+        <td>${formatSize(item.file_size)}</td>
+        <td>${item.build_time_ms?item.build_time_ms+'ms':'N/A'}</td>
+        <td><button class="btn btn-danger" style="padding:0.3rem 0.7rem;font-size:0.78rem;" onclick="delRecord(event,${item.id})">🗑️</button></td>
+      </tr>`).join('');
+  }
+
+  async function delRecord(e, id){
+    e.stopPropagation();
+    if(!confirm('Delete this record?')) return;
+    try{
+      const res = await fetch((window.BG_API_BASE || '') + '/api/history/' + id,{method:'DELETE'});
+      if(!res.ok) throw new Error('Delete failed');
+      allHistory = allHistory.filter(r=>r.id!==id);
+      renderTable(allHistory);
+      await loadStats();
+      showToast('Record deleted!','success');
+    } catch(err){ showToast('Could not delete.','error'); }
+  }
+
+  loadStats();
+  loadTable();
+</script>
+</body>
+</html>
